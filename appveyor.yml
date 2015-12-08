@@ -1,0 +1,37 @@
+version: 1.0.{build}
+services: mssql2014
+before_build:
+- cmd: nuget restore
+build:
+  project: ShowPlanParser.sln
+  verbosity: minimal
+before_test:
+- ps: >-
+    $startPath = "$($env:appveyor_build_folder)"
+
+    $sqlInstance = "(local)\SQL2014"
+
+    $dbName = "AdventureWorks"
+
+
+    # replace the db connection with the local instance
+
+    $config = join-path $startPath "tests\ShowPlanParser.EntityFramework6.Tests\bin\Debug\ShowPlanParser.EntityFramework6.Tests.dll.config"
+
+    $doc = (gc $config) -as [xml]
+
+    $doc.SelectSingleNode('//connectionStrings/add[@name="AdventureWorksContext"]').connectionString = "Server=$sqlInstance; Database=$dbName; Trusted_connection=true"
+
+    $doc.Save($config)
+
+
+    # attach mdf to local instance
+
+    $bakFile = join-path $startPath "sample-data\AdventureWorks2014.bak"
+
+    $mdfFile = join-path $startPath "sample-data\AdventureWorks2014.mdf"
+
+    $ldfFile = join-path $startPath "sample-data\AdventureWorks2014.ldf"
+
+
+    sqlcmd -S "$sqlInstance" -Q "RESTORE DATABASE AdventureWorks FROM DISK = '$bakFile' WITH MOVE 'AdventureWorks2014_data' TO '$mdfFile', MOVE 'AdventureWorks2014_Log' TO '$ldfFile' ,REPLACE"
