@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using AdventureWorksPowerTools.Models;
 using Shouldly;
+using ShowPlanParser.EntityFramework6.Tests.Models;
 using Xunit;
 
 namespace ShowPlanParser.EntityFramework6.Tests

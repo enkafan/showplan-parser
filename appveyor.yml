@@ -27,11 +27,11 @@ before_test:
 
     # attach mdf to local instance
 
-    $bakFile = join-path $startPath "sample-data\AdventureWorks2014.bak"
+    $bakFile = join-path $startPath "sample-data\AdventureWorks.bak"
 
-    $mdfFile = join-path $startPath "sample-data\AdventureWorks2014.mdf"
+    $mdfFile = join-path $startPath "sample-data\AdventureWorks.mdf"
 
-    $ldfFile = join-path $startPath "sample-data\AdventureWorks2014.ldf"
+    $ldfFile = join-path $startPath "sample-data\AdventureWorks.ldf"
 
 
-    sqlcmd -S "$sqlInstance" -Q "RESTORE DATABASE AdventureWorks FROM DISK = '$bakFile' WITH MOVE 'AdventureWorks2014_data' TO '$mdfFile', MOVE 'AdventureWorks2014_Log' TO '$ldfFile' ,REPLACE"
+    sqlcmd -S "$sqlInstance" -Q "RESTORE DATABASE AdventureWorks FROM DISK = '$bakFile' WITH MOVE 'AdventureWorksLT2008_Data' TO '$mdfFile', MOVE 'AdventureWorksLT2008_Log' TO '$ldfFile' ,REPLACE"
