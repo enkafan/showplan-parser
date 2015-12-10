@@ -2,7 +2,6 @@ using System;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Runtime.Remoting.Messaging;
 
 namespace ShowPlanParser.EntityFramework6
@@ -46,6 +45,10 @@ namespace ShowPlanParser.EntityFramework6
 
         private void AddCommand(DbCommand command)
         {
+            var sqlCommand = command as SqlCommand;
+            if (sqlCommand == null)
+                return;
+
             // we can have multiple interceptors configured depending on 
             // how many tests are running at once. I don't know of a good way
             // to tell which one goes where so forcing them to only work per thread
@@ -57,13 +60,7 @@ namespace ShowPlanParser.EntityFramework6
             if (id != _spy.Id)
                 return;
 
-            var sqlCommand = new SqlCommand(command.CommandText);
-            foreach (var parameter in command.Parameters.OfType<SqlParameter>())
-            {
-                sqlCommand.Parameters.AddWithValue(parameter.ParameterName, parameter.Value);
-            }
-
-            _spy.Commands.Add(sqlCommand);
+            _spy.Commands.Add(new ShowPlanCommand((SqlCommand) command));
         }
     }
 }

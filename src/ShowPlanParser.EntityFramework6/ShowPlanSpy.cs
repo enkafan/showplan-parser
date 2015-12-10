@@ -13,7 +13,7 @@ namespace ShowPlanParser.EntityFramework6
         private IDbCommandInterceptor _showPlanInterceptor;
 
         public Guid Id { get; }
-        public List<SqlCommand> Commands { get; set; }  = new List<SqlCommand>();
+        public List<ShowPlanCommand> Commands { get; set; }  = new List<ShowPlanCommand>();
 
         public ShowPlanSpy(DbContext context)
         {

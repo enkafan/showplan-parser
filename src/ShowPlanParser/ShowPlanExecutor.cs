@@ -3,23 +3,22 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Xml.Serialization;
 
 namespace ShowPlanParser
 {
     public class ShowPlanExecutor : IDisposable
     {
+        private static readonly XmlSerializer Serializer = new XmlSerializer(typeof(ShowPlan));
         private readonly SqlConnection _sqlConnection;
-        private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(ShowPlan));
-        private bool _disposed = false;
+        private bool _disposed;
 
         public ShowPlanExecutor(string connectionString)
         {
             _sqlConnection = new SqlConnection(connectionString);
         }
 
-        public ShowPlan GetShowPlan(SqlCommand command)
+        public ShowPlan GetShowPlan(ShowPlanCommand command)
         {
             const string queryPlanQuery = @"SELECT  [QP].[query_plan], text
                 FROM sys.dm_exec_cached_plans CP
@@ -43,7 +42,7 @@ namespace ShowPlanParser
 
             using (TextReader reader = new StringReader(plan))
             {
-                return (ShowPlan) _serializer.Deserialize(reader);
+                return (ShowPlan) Serializer.Deserialize(reader);
             }
         }
 
@@ -67,19 +66,19 @@ namespace ShowPlanParser
             Dispose(false);
         }
 
-        private static string GetParamTextForPlan(SqlParameterCollection parameterCollection)
+        private static string GetParamTextForPlan(IEnumerable<ShowPlanParameter> parameterCollection)
         {
-            List<string> paramList = new List<string>();
+            var paramList = new List<string>();
 
-            foreach (var param in parameterCollection.OfType<SqlParameter>())
+            foreach (var param in parameterCollection)
             {
                 if (param.Size > 0)
                 {
-                    paramList.Add($"@{param.ParameterName} {param.SqlDbType}({param.Size})");
+                    paramList.Add($"@{param.Name} {param.SqlType}({param.Size})");
                 }
                 else
                 {
-                    paramList.Add($"@{param.ParameterName} {param.SqlDbType}");
+                    paramList.Add($"@{param.Name} {param.SqlType}");
                 }
             }
 
