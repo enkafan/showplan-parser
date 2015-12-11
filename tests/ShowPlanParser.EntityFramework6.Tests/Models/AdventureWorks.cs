@@ -48,6 +48,7 @@ namespace ShowPlanParser.EntityFramework6.Tests.Models
         DbSet<BuildVersion> BuildVersions { get; set; } // BuildVersion
         DbSet<Customer> Customers { get; set; } // Customer
         DbSet<CustomerAddress> CustomerAddresses { get; set; } // CustomerAddress
+        DbSet<DataLength> DataLengths { get; set; } // DataLength
         DbSet<ErrorLog> ErrorLogs { get; set; } // ErrorLog
         DbSet<Product> Products { get; set; } // Product
         DbSet<ProductCategory> ProductCategories { get; set; } // ProductCategory
@@ -77,6 +78,7 @@ namespace ShowPlanParser.EntityFramework6.Tests.Models
         public DbSet<BuildVersion> BuildVersions { get; set; } // BuildVersion
         public DbSet<Customer> Customers { get; set; } // Customer
         public DbSet<CustomerAddress> CustomerAddresses { get; set; } // CustomerAddress
+        public DbSet<DataLength> DataLengths { get; set; } // DataLength
         public DbSet<ErrorLog> ErrorLogs { get; set; } // ErrorLog
         public DbSet<Product> Products { get; set; } // Product
         public DbSet<ProductCategory> ProductCategories { get; set; } // ProductCategory
@@ -129,6 +131,7 @@ namespace ShowPlanParser.EntityFramework6.Tests.Models
             modelBuilder.Configurations.Add(new BuildVersionConfiguration());
             modelBuilder.Configurations.Add(new CustomerConfiguration());
             modelBuilder.Configurations.Add(new CustomerAddressConfiguration());
+            modelBuilder.Configurations.Add(new DataLengthConfiguration());
             modelBuilder.Configurations.Add(new ErrorLogConfiguration());
             modelBuilder.Configurations.Add(new ProductConfiguration());
             modelBuilder.Configurations.Add(new ProductCategoryConfiguration());
@@ -148,6 +151,7 @@ namespace ShowPlanParser.EntityFramework6.Tests.Models
             modelBuilder.Configurations.Add(new BuildVersionConfiguration(schema));
             modelBuilder.Configurations.Add(new CustomerConfiguration(schema));
             modelBuilder.Configurations.Add(new CustomerAddressConfiguration(schema));
+            modelBuilder.Configurations.Add(new DataLengthConfiguration(schema));
             modelBuilder.Configurations.Add(new ErrorLogConfiguration(schema));
             modelBuilder.Configurations.Add(new ProductConfiguration(schema));
             modelBuilder.Configurations.Add(new ProductCategoryConfiguration(schema));
@@ -413,6 +417,24 @@ namespace ShowPlanParser.EntityFramework6.Tests.Models
         {
             Rowguid = System.Guid.NewGuid();
             ModifiedDate = System.DateTime.Now;
+        }
+    }
+
+    // DataLength
+    public class DataLength
+    {
+        public Guid Id { get; set; } // Id (Primary key)
+        public DateTime DateTime2LengthOf7 { get; set; } // DateTime2LengthOf7
+        public DateTime DateTime2LengthOf6 { get; set; } // DateTime2LengthOf6
+        public decimal DecimalLengthOf18And2 { get; set; } // DecimalLengthOf18and2
+        public string NvarcharMax { get; set; } // NvarcharMax
+        public string VarcharMax { get; set; } // VarcharMax
+        public string Varchar30 { get; set; } // Varchar30
+        public string Nvarchar30 { get; set; } // Nvarchar30
+        
+        public DataLength()
+        {
+            Id = System.Guid.NewGuid();
         }
     }
 
@@ -1066,6 +1088,30 @@ namespace ShowPlanParser.EntityFramework6.Tests.Models
             // Foreign keys
             HasRequired(a => a.Address).WithMany(b => b.CustomerAddresses).HasForeignKey(c => c.AddressId); // FK_CustomerAddress_Address_AddressID
             HasRequired(a => a.Customer).WithMany(b => b.CustomerAddresses).HasForeignKey(c => c.CustomerId); // FK_CustomerAddress_Customer_CustomerID
+        }
+    }
+
+    // DataLength
+    public class DataLengthConfiguration : EntityTypeConfiguration<DataLength>
+    {
+        public DataLengthConfiguration()
+            : this("dbo")
+        {
+        }
+ 
+        public DataLengthConfiguration(string schema)
+        {
+            ToTable(schema + ".DataLength");
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName("Id").IsRequired().HasColumnType("uniqueidentifier").HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            Property(x => x.DateTime2LengthOf7).HasColumnName("DateTime2LengthOf7").IsRequired().HasColumnType("datetime2");
+            Property(x => x.DateTime2LengthOf6).HasColumnName("DateTime2LengthOf6").IsRequired().HasColumnType("datetime2");
+            Property(x => x.DecimalLengthOf18And2).HasColumnName("DecimalLengthOf18and2").IsRequired().HasColumnType("decimal").HasPrecision(18,2);
+            Property(x => x.NvarcharMax).HasColumnName("NvarcharMax").IsRequired().HasColumnType("nvarchar");
+            Property(x => x.VarcharMax).HasColumnName("VarcharMax").IsRequired().IsUnicode(false).HasColumnType("varchar");
+            Property(x => x.Varchar30).HasColumnName("Varchar30").IsRequired().IsUnicode(false).HasColumnType("varchar").HasMaxLength(30);
+            Property(x => x.Nvarchar30).HasColumnName("Nvarchar30").IsRequired().HasColumnType("nvarchar").HasMaxLength(30);
         }
     }
 

@@ -83,6 +83,10 @@ namespace ShowPlanParser
                 {
                     paramList.Add($"{name} {param.SqlType}({param.Size})");
                 }
+                else if (param.Precision > 0)
+                {
+                    paramList.Add($"{name} {param.SqlType}({param.Precision},{param.Scale})");
+                }
                 else
                 {
                     paramList.Add($"{name} {param.SqlType}");
