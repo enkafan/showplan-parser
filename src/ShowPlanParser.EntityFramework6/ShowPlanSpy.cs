@@ -20,7 +20,7 @@ namespace ShowPlanParser.EntityFramework6
             Id = Guid.NewGuid();
             _showPlanInterceptor = new ShowPlanInterceptor(this);
             DbInterception.Add(_showPlanInterceptor);
-            CallContext.SetData("ShowPlanInterceptorId", Id);
+            CallContext.LogicalSetData("ShowPlanInterceptorId", Id);
         }
 
         public IEnumerable<ShowPlan> GetShowPlans()

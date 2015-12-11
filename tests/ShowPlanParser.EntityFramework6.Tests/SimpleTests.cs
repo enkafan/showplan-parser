@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using Shouldly;
 using ShowPlanParser.EntityFramework6.Tests.Models;
 using Xunit;
@@ -21,6 +23,20 @@ namespace ShowPlanParser.EntityFramework6.Tests
                 showPlan.SubTreeCost().ShouldBeLessThan(2);
             }
         }
+
+        [Fact]
+        public async Task Can_do_simple_select_asyncronously()
+        {
+            var context = new AdventureWorksContext();
+
+            using (var spy = new ShowPlanSpy())
+            {
+                var queryResult = await context.SalesOrderDetails.Where(i => i.OrderQty == 15).ToListAsync();
+                var showPlan = spy.GetShowPlans().First();
+                showPlan.SubTreeCost().ShouldBeLessThan(2);
+            }
+        }
+
 
         [Fact]
         [AutoRollback]

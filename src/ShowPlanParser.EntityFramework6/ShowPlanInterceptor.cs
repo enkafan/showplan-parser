@@ -56,7 +56,7 @@ namespace ShowPlanParser.EntityFramework6
             if (command.CommandText.Trim().ToLowerInvariant() == "select cast(serverproperty('engineedition') as int)")
                 return;
 
-            var id = (Guid)CallContext.GetData("ShowPlanInterceptorId");
+            var id = (Guid)CallContext.LogicalGetData("ShowPlanInterceptorId");
             if (id != _spy.Id)
                 return;
 
