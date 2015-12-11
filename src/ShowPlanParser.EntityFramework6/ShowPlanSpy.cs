@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
 
 namespace ShowPlanParser.EntityFramework6
 {
     public class ShowPlanSpy : IDisposable
     {
-        private readonly DbContext _context;
         private IDbCommandInterceptor _showPlanInterceptor;
 
         public Guid Id { get; }
         public List<ShowPlanCommand> Commands { get; set; }  = new List<ShowPlanCommand>();
 
-        public ShowPlanSpy(DbContext context)
+        public ShowPlanSpy()
         {
-            _context = context;
             Id = Guid.NewGuid();
             _showPlanInterceptor = new ShowPlanInterceptor(this);
             DbInterception.Add(_showPlanInterceptor);
@@ -26,11 +25,15 @@ namespace ShowPlanParser.EntityFramework6
 
         public IEnumerable<ShowPlan> GetShowPlans()
         {
-            using (var executor = new ShowPlanExecutor(_context.Database.Connection.ConnectionString))
+            var commandsByConnectionString = Commands.GroupBy(i => i.ConnectionString);
+            foreach (var command in commandsByConnectionString)
             {
-                foreach (var command in Commands)
+                using (var executor = new ShowPlanExecutor(command.Key))
                 {
-                    yield return executor.GetShowPlan(command);
+                    foreach (var showPlanCommand in command.Distinct())
+                    {
+                        yield return executor.GetShowPlan(showPlanCommand);
+                    }
                 }
             }
         }

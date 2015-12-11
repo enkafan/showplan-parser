@@ -38,7 +38,10 @@ namespace ShowPlanParser
 
             var sqlCommand = new SqlCommand(queryPlanQuery, _sqlConnection);
             sqlCommand.Parameters.AddWithValue("statement", commandText);
+
             var plan = (string) sqlCommand.ExecuteScalar();
+            if (string.IsNullOrWhiteSpace(plan))
+                return null;
 
             using (TextReader reader = new StringReader(plan))
             {
@@ -72,13 +75,17 @@ namespace ShowPlanParser
 
             foreach (var param in parameterCollection)
             {
+                var name = param.Name;
+                if (name.StartsWith("@") == false)
+                    name = $"@{name}";
+
                 if (param.Size > 0)
                 {
-                    paramList.Add($"@{param.Name} {param.SqlType}({param.Size})");
+                    paramList.Add($"{name} {param.SqlType}({param.Size})");
                 }
                 else
                 {
-                    paramList.Add($"@{param.Name} {param.SqlType}");
+                    paramList.Add($"{name} {param.SqlType}");
                 }
             }
 
