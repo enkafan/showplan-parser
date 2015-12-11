@@ -1,4 +1,6 @@
-﻿namespace ShowPlanParser
+﻿using System;
+
+namespace ShowPlanParser
 {
     public class ShowPlanParameter
     {
@@ -7,6 +9,9 @@
             Name = name;
             SqlType = sqlType;
             Size = size;
+
+            if (sqlType.Equals("datetime2", StringComparison.InvariantCultureIgnoreCase))
+                Size = 7;
         }
 
         public string Name { get;  }
