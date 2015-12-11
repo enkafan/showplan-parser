@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -147,6 +146,25 @@ namespace ShowPlanParser.EntityFramework6.Tests
 
                 context.DataLengths.Add(data);
                 context.SaveChanges();
+
+                var showPlan = spy.GetShowPlans().First();
+                showPlan.SubTreeCost().ShouldBeLessThan(2);
+
+            }
+        }
+
+        [Fact]
+        public void Can_do_lazy_loading()
+        {
+            // this should work easily, no parameters needed on generated query
+            var context = new AdventureWorksContext();
+            using (var spy = new ShowPlanSpy())
+            {
+                var product =  context.Products.First();
+                var categoryName = product.ProductCategory.Name;
+
+                product.ShouldNotBeNull();
+                categoryName.ShouldNotBeNullOrEmpty();
 
                 var showPlan = spy.GetShowPlans().First();
                 showPlan.SubTreeCost().ShouldBeLessThan(2);
