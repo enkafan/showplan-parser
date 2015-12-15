@@ -24,7 +24,7 @@ namespace ShowPlanParser.EntityFramework6.Tests
         /// Gets or sets the isolation level of the transaction.
         /// Default value is <see cref="IsolationLevel"/>.Unspecified.
         /// </summary>
-        public IsolationLevel IsolationLevel { get; set; } = IsolationLevel.Serializable;
+        public IsolationLevel IsolationLevel { get; set; } = IsolationLevel.ReadUncommitted;
 
         /// <summary>
         /// Gets or sets the scope option for the transaction.

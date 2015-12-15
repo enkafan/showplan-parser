@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace ShowPlanParser
@@ -20,24 +22,72 @@ namespace ShowPlanParser
 
         public ShowPlan GetShowPlan(ShowPlanCommand command)
         {
-            const string queryPlanQuery = @"SELECT  [QP].[query_plan], text
-                FROM sys.dm_exec_cached_plans CP
-                CROSS APPLY sys.dm_exec_sql_text(CP.plan_handle) ST
-                CROSS APPLY sys.dm_exec_query_plan(CP.plan_handle) QP where [text] = @statement";
+            //const string queryPlanQuery = @"SELECT  [QP].[query_plan], text
+            //    FROM sys.dm_exec_cached_plans CP
+            //    CROSS APPLY sys.dm_exec_sql_text(CP.plan_handle) ST
+            //    CROSS APPLY sys.dm_exec_query_plan(CP.plan_handle) QP where [text] = @statement";
 
             if (_sqlConnection.State == ConnectionState.Closed)
             {
                 _sqlConnection.Open();
+                var showPlanOnCommand = new SqlCommand("SET SHOWPLAN_XML ON", _sqlConnection);
+                showPlanOnCommand.ExecuteNonQuery();
             }
 
-            var commandText = command.CommandText;
-            if (command.Parameters.Count > 0)
+            var sb = new StringBuilder();
+            foreach (var showPlanParameter in command.Parameters)
             {
-                commandText = string.Join(",", GetParamTextForPlan(command.Parameters)) + commandText;
+                switch (showPlanParameter.SqlType)
+                {
+                    case SqlDbType.Char:
+                    case SqlDbType.NVarChar:
+                    case SqlDbType.NChar:
+                    case SqlDbType.VarChar:
+                        sb.AppendLine($"DECLARE {showPlanParameter.Name} {showPlanParameter.SqlType}({showPlanParameter.Size})");
+                        sb.AppendLine($"SET {showPlanParameter.Name} = '{showPlanParameter.Value}'");
+                        break;
+                    case SqlDbType.Text:
+                    case SqlDbType.NText:
+                    case SqlDbType.UniqueIdentifier:
+                    case SqlDbType.Date:
+                    case SqlDbType.DateTime:
+                    case SqlDbType.DateTimeOffset:
+                    case SqlDbType.SmallDateTime:
+                    case SqlDbType.DateTime2:
+                    case SqlDbType.Time:
+                        sb.AppendLine($"DECLARE {showPlanParameter.Name} {showPlanParameter.SqlType}");
+                        sb.AppendLine($"SET {showPlanParameter.Name} = '{showPlanParameter.Value}'");
+                        break;
+                    case SqlDbType.BigInt:
+                    case SqlDbType.Binary:
+                    case SqlDbType.Bit:
+                    case SqlDbType.Decimal:
+                    case SqlDbType.Float:
+                    case SqlDbType.Image:
+                    case SqlDbType.Int:
+                    case SqlDbType.Money:
+                    case SqlDbType.Real:
+                    case SqlDbType.SmallInt:
+                    case SqlDbType.SmallMoney:
+                    case SqlDbType.Timestamp:
+                    case SqlDbType.TinyInt:
+                    case SqlDbType.VarBinary:
+                    case SqlDbType.Variant:
+                    case SqlDbType.Xml: // pretty sure these two won't work regardless
+                    case SqlDbType.Udt:
+                    case SqlDbType.Structured:
+                        sb.AppendLine($"DECLARE {showPlanParameter.Name} {showPlanParameter.SqlType}");
+                        sb.AppendLine($"SET {showPlanParameter.Name} = {showPlanParameter.Value}");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
-            var sqlCommand = new SqlCommand(queryPlanQuery, _sqlConnection);
-            sqlCommand.Parameters.AddWithValue("statement", commandText);
+            sb.AppendLine(command.CommandText);
+
+            var cmdText = sb.ToString();
+            var sqlCommand = new SqlCommand(cmdText, _sqlConnection);
 
             var plan = (string) sqlCommand.ExecuteScalar();
             if (string.IsNullOrWhiteSpace(plan))
@@ -45,7 +95,15 @@ namespace ShowPlanParser
 
             using (TextReader reader = new StringReader(plan))
             {
-                return (ShowPlan) Serializer.Deserialize(reader);
+                var showPlan = (ShowPlan) Serializer.Deserialize(reader);
+                foreach (var plans in showPlan.BatchSequence)
+                {
+                    foreach (var stmtBlockType in plans)
+                    {
+                        stmtBlockType.Items = stmtBlockType.Items.Where(baseStmtInfoType => Math.Abs(baseStmtInfoType.StatementSubTreeCost) > .0000001).ToArray();
+                    }
+                }
+                return showPlan;
             }
         }
 

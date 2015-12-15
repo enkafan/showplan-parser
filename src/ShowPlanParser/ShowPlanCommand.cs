@@ -14,8 +14,8 @@ namespace ShowPlanParser
 
             foreach (var parameter in command.Parameters.OfType<SqlParameter>())
             {
-                Parameters.Add(new ShowPlanParameter(parameter.ParameterName, parameter.SqlDbType.ToString(),
-                    parameter.Size, parameter.Precision, parameter.Scale));
+                Parameters.Add(new ShowPlanParameter(parameter.ParameterName, parameter.SqlDbType,
+                    parameter.Size, parameter.Precision, parameter.Scale, parameter.Value));
             }
         }
 
