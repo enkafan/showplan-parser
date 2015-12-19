@@ -37,8 +37,8 @@ before_test:
 after_build:
   - cmd: ECHO nuget pack src\ShowPlanParser\ShowPlanParser.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
   - cmd: nuget pack src\ShowPlanParser\ShowPlanParser.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: appveyor PushArtifact "src\ShowPlanParser\ShowPlanParser.%GitVersion_NuGetVersion%.nupkg"
+  - cmd: appveyor PushArtifact "ShowPlanParser.%GitVersion_NuGetVersion%.nupkg"
   
   - cmd: ECHO nuget pack src\ShowPlanParser.EntityFramework6\ShowPlanParser.EntityFramework6.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
   - cmd: nuget pack src\ShowPlanParser.EntityFramework6\ShowPlanParser.EntityFramework6.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: appveyor PushArtifact "src\ShowPlanParser.EntityFramework6\ShowPlanParser.EntityFramework6.%GitVersion_NuGetVersion%.nupkg"
+  - cmd: appveyor PushArtifact "ShowPlanParser.EntityFramework6.%GitVersion_NuGetVersion%.nupkg"
