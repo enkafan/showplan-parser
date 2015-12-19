@@ -4,6 +4,9 @@ install:
 assembly_info:
   patch: false
   
+configuration:
+  - Debug
+  
 services: mssql2014
 before_build:
   - nuget restore
