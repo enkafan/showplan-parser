@@ -35,6 +35,7 @@ before_test:
     $doc.Save($config)
 
     # attach mdf to local instance
+    
     $bakFile = join-path $startPath "sample-data\AdventureWorks.bak"
     
     $mdfFile = join-path $startPath "sample-data\AdventureWorks.mdf"
