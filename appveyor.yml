@@ -1,37 +1,41 @@
-version: 1.0.{build}
+install:
+  - choco install gitversion.portable -pre -y
+
+assembly_info:
+  patch: false
+  
 services: mssql2014
 before_build:
-- cmd: nuget restore
+  - nuget restore
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+
 build:
   project: ShowPlanParser.sln
   verbosity: minimal
+
 before_test:
 - ps: >-
     $startPath = "$($env:appveyor_build_folder)"
-
     $sqlInstance = "(local)\SQL2014"
-
     $dbName = "AdventureWorks"
 
-
     # replace the db connection with the local instance
-
     $config = join-path $startPath "tests\ShowPlanParser.EntityFramework6.Tests\bin\Debug\ShowPlanParser.EntityFramework6.Tests.dll.config"
-
     $doc = (gc $config) -as [xml]
-
     $doc.SelectSingleNode('//connectionStrings/add[@name="AdventureWorksContext"]').connectionString = "Server=$sqlInstance; Database=$dbName; Trusted_connection=true"
-
     $doc.Save($config)
 
-
     # attach mdf to local instance
-
     $bakFile = join-path $startPath "sample-data\AdventureWorks.bak"
-
     $mdfFile = join-path $startPath "sample-data\AdventureWorks.mdf"
-
     $ldfFile = join-path $startPath "sample-data\AdventureWorks.ldf"
-
-
     sqlcmd -S "$sqlInstance" -Q "RESTORE DATABASE AdventureWorks FROM DISK = '$bakFile' WITH MOVE 'AdventureWorksLT2008_Data' TO '$mdfFile', MOVE 'AdventureWorksLT2008_Log' TO '$ldfFile' ,REPLACE"
+    
+after_build:
+  - cmd: ECHO nuget pack src\ShowPlanParser\ShowPlanParser.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: nuget pack src\ShowPlanParser\ShowPlanParser.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: appveyor PushArtifact "src\ShowPlanParser\ShowPlanParser.%GitVersion_NuGetVersion%.nupkg"
+  
+  - cmd: ECHO nuget pack src\ShowPlanParser.EntityFramework6\ShowPlanParser.EntityFramework6.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: nuget pack src\ShowPlanParser.EntityFramework6\ShowPlanParser.EntityFramework6.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: appveyor PushArtifact "src\ShowPlanParser.EntityFramework6\ShowPlanParser.EntityFramework6.%GitVersion_NuGetVersion%.nupkg"

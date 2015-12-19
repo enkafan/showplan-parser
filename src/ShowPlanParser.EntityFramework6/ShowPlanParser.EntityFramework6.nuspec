@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ShowPlanParser.EntityFramework6</id>
+    <version>$version$</version>
+    <title>ShowPlanParser for EntityFramework 6</title>
+    <authors>Phil Scott</authors>
+    <owners>Phil Scott</owners>
+    <licenseUrl>https://raw.githubusercontent.com/enkafan/showplan-parser/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/enkafan/showplan-parser</projectUrl>
+    <description>Helper to gather SQL Commands for parsing when using Entity Framework 6</description>
+    <copyright>Copyright 2015</copyright>
+    <tags>SQLServer, SHOWPLAN, EntityFramework</tags>
+	<dependencies>
+      <dependency id="ShowPlanParser" version="$version$" />
+      <dependency id="EntityFramework" version="6.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\ShowPlanParser.EntityFramework6.dll" target="lib\net45\ShowPlanParser.EntityFramework6.dll" />
+  </files>
+</package>

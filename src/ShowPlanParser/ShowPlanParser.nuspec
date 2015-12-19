@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ShowPlanParser</id>
+    <version>$version$</version>
+    <title>ShowPlanParser</title>
+    <authors>Phil Scott</authors>
+    <owners>Phil Scott</owners>
+    <licenseUrl>https://raw.githubusercontent.com/enkafan/showplan-parser/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/enkafan/showplan-parser</projectUrl>
+    <description>ShowPlanParser will return a SQL Server SHOWPLAN for a given query</description>
+    <copyright>Copyright 2015</copyright>
+    <tags>SQLServer, SHOWPLAN</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\ShowPlanParser.dll" target="lib\net45\ShowPlanParser.dll" />
+  </files>
+</package>
