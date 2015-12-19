@@ -14,6 +14,6 @@
     <tags>SQLServer, SHOWPLAN</tags>
   </metadata>
   <files>
-    <file src="bin\$target$\ShowPlanParser.dll" target="lib\net45\ShowPlanParser.dll" />
+    <file src="bin\$target$\ShowPlanParser.dll" target="lib\net40\ShowPlanParser.dll" />
   </files>
 </package>
