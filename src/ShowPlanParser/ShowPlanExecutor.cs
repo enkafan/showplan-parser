@@ -37,14 +37,18 @@ namespace ShowPlanParser
             var sb = new StringBuilder();
             foreach (var showPlanParameter in command.Parameters)
             {
+                var name = showPlanParameter.Name;
+                if (name.StartsWith("@") == false)
+                    name = $"@{name}";
+
                 switch (showPlanParameter.SqlType)
                 {
                     case SqlDbType.Char:
                     case SqlDbType.NVarChar:
                     case SqlDbType.NChar:
                     case SqlDbType.VarChar:
-                        sb.AppendLine($"DECLARE {showPlanParameter.Name} {showPlanParameter.SqlType}({showPlanParameter.Size})");
-                        sb.AppendLine($"SET {showPlanParameter.Name} = '{showPlanParameter.Value}'");
+                        sb.AppendLine($"DECLARE {name} {showPlanParameter.SqlType}({showPlanParameter.Size})");
+                        sb.AppendLine($"SET {name} = '{showPlanParameter.Value}'");
                         break;
                     case SqlDbType.Text:
                     case SqlDbType.NText:
@@ -55,12 +59,16 @@ namespace ShowPlanParser
                     case SqlDbType.SmallDateTime:
                     case SqlDbType.DateTime2:
                     case SqlDbType.Time:
-                        sb.AppendLine($"DECLARE {showPlanParameter.Name} {showPlanParameter.SqlType}");
-                        sb.AppendLine($"SET {showPlanParameter.Name} = '{showPlanParameter.Value}'");
+                        sb.AppendLine($"DECLARE {name} {showPlanParameter.SqlType}");
+                        sb.AppendLine($"SET {name} = '{showPlanParameter.Value}'");
+                        break;
+                    case SqlDbType.Bit:
+                        var value= (bool) showPlanParameter.Value ? 1 : 0;
+                        sb.AppendLine($"DECLARE {name} {showPlanParameter.SqlType}");
+                        sb.AppendLine($"SET {name} = '{value}'");
                         break;
                     case SqlDbType.BigInt:
                     case SqlDbType.Binary:
-                    case SqlDbType.Bit:
                     case SqlDbType.Decimal:
                     case SqlDbType.Float:
                     case SqlDbType.Image:
@@ -76,8 +84,8 @@ namespace ShowPlanParser
                     case SqlDbType.Xml: // pretty sure these two won't work regardless
                     case SqlDbType.Udt:
                     case SqlDbType.Structured:
-                        sb.AppendLine($"DECLARE {showPlanParameter.Name} {showPlanParameter.SqlType}");
-                        sb.AppendLine($"SET {showPlanParameter.Name} = {showPlanParameter.Value}");
+                        sb.AppendLine($"DECLARE {name} {showPlanParameter.SqlType}");
+                        sb.AppendLine($"SET {name} = {showPlanParameter.Value}");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
